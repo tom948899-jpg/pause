@@ -181,7 +181,7 @@ var hist=[],mem={name:'',topics:[],used:{},turns:0,lastOffer:-9,last:''};
 try{hist=JSON.parse(localStorage.getItem(KEY)||'[]')||[]}catch(e){hist=[]}
 try{var _m=JSON.parse(localStorage.getItem(MKEY)||'null');if(_m)for(var _k in _m)mem[_k]=_m[_k]}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(hist.slice(-200)));localStorage.setItem(MKEY,JSON.stringify(mem))}catch(e){}}
-function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&','<':'<','>':'>','"':'"'}[c]})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&'+'amp;','<':'&'+'lt;','>':'&'+'gt;','"':'&'+'quot;'}[c]})}
 function pickFrom(key,arr){var u=mem.used[key]||[];var free=[];for(var i=0;i<arr.length;i++)if(u.indexOf(i)<0)free.push(i);
  if(!free.length){u=[];for(i=0;i<arr.length;i++)free.push(i)}
  var i2=free[Math.floor(Math.random()*free.length)];if(arr.length>1&&arr[i2]===mem.last&&free.length>1)i2=free[(free.indexOf(i2)+1)%free.length];
