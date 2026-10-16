@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05060d"><title>Pause</title>
+<script>document.documentElement.className+=" js";</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#05060d}
+body{color:#f3e6cf;font-family:"Cormorant Garamond",Garamond,"EB Garamond",Georgia,"Times New Roman",serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#sky{position:fixed;inset:0;background:radial-gradient(120% 80% at 50% 28%,#1d1f3a 0%,#10122a 40%,#07081a 75%,#04050c 100%)}
+#cv{position:fixed;inset:0;width:100%;height:100%}
+#glow{position:fixed;left:50%;top:30%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;pointer-events:none;
+background:radial-gradient(circle,rgba(255,200,120,.32) 0%,rgba(255,170,80,.14) 22%,rgba(255,140,60,.05) 45%,rgba(0,0,0,0) 68%);opacity:.6;transform:scale(.8);transition:transform 4s cubic-bezier(.45,0,.55,1),opacity 4s cubic-bezier(.45,0,.55,1)}
+#vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(130% 100% at 50% 40%,transparent 55%,rgba(0,0,0,.65) 100%)}
+#black{display:none}.js #black{display:block;position:fixed;inset:0;background:#000;z-index:50;pointer-events:none;animation:unblack 3s ease .2s forwards}@keyframes unblack{to{opacity:0;visibility:hidden}}
+#stage{position:fixed;inset:0;overflow-y:auto;z-index:2;transition:transform 4s cubic-bezier(.45,0,.55,1)}
+main{max-width:480px;margin:0 auto;padding:calc(22px + env(safe-area-inset-top)) 24px 40px;display:flex;flex-direction:column;align-items:center;min-height:100%}
+.title{font-weight:300;font-size:1.05rem;letter-spacing:.55em;margin-right:-.55em;color:#e8d3aa}
+.js .title{animation:titleIn 3.5s cubic-bezier(.2,.7,.2,1) 1.2s both}@keyframes titleIn{from{opacity:0;letter-spacing:.9em;margin-right:-.9em}}
+.scene{position:relative;width:260px;height:250px;margin-top:6px}
+.orb{position:absolute;left:50%;top:58%;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;
+background:radial-gradient(circle at 50% 50%,#fffaf0 0%,#ffe9bf 22%,#ffc978 45%,rgba(240,160,70,.55) 62%,rgba(240,150,60,0) 72%);
+filter:blur(.5px);transform:scale(.8);opacity:.8;transition:transform 4s cubic-bezier(.45,0,.55,1),opacity 4s cubic-bezier(.45,0,.55,1)}
+.orb::before,.orb::after{content:"";position:absolute;inset:-60%;border-radius:50%;background:radial-gradient(circle,rgba(255,210,140,.45) 0%,rgba(255,170,80,.12) 40%,rgba(0,0,0,0) 70%)}
+.orb::after{inset:-25%;background:radial-gradient(circle,rgba(255,240,210,.5),rgba(0,0,0,0) 65%);animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.6;transform:scale(1.06)}}
+.owl{position:absolute;left:50%;top:0;width:78px;margin-left:-39px;filter:drop-shadow(0 6px 14px rgba(255,170,80,.35));animation:float 7s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-4px)}}
+.wing{transform-box:fill-box;animation:wingL 5s ease-in-out infinite}
+.wing.r{animation-name:wingR;transform-origin:0% 10%}.wing.l{transform-origin:100% 10%}
+@keyframes wingL{50%{transform:rotate(6deg)}}@keyframes wingR{50%{transform:rotate(-6deg)}}
+.anchor{position:absolute;left:0;right:0;bottom:-8px;text-align:center;font-style:italic;font-size:1.35rem;letter-spacing:.06em;color:#ffe9c4;opacity:0;text-shadow:0 0 18px rgba(255,190,110,.7);transition:opacity 2s ease,letter-spacing 3s ease}
+.anchor.on{opacity:.95;letter-spacing:.12em}
+/* states */
+body.aum .orb{transform:scale(1.45);opacity:1}body.aum #glow{transform:scale(1.25);opacity:1}body.aum #stage{transform:scale(1.04)}
+body.ah .orb{transform:scale(1);opacity:.75;transition-duration:6s}body.ah #glow{transform:scale(.9);opacity:.6;transition-duration:6s}body.ah #stage{transition-duration:6s}
+body.pause .orb{transform:scale(1.08);opacity:.85;transition-duration:3s}body.pause #glow{opacity:.75;transition-duration:3s}
+.view{width:100%;transition:opacity 1.6s ease}.js .view{opacity:0}.js .view.show{opacity:1}.hidden{display:none!important}
+.text{margin:22px 0 22px;text-align:center;line-height:1.75;font-size:1.12rem;color:#efe1c6}
+.text p{margin-bottom:13px}.js .text p{animation:pin 1.8s ease both}.js .text p:nth-child(2){animation-delay:.3s}.js .text p:nth-child(3){animation-delay:.6s}.js .text p:nth-child(4){animation-delay:.9s}.js .text p:nth-child(5){animation-delay:1.2s}@keyframes pin{from{opacity:0;transform:translateY(8px)}}
+.text em{color:#ffd58f;font-style:italic;text-shadow:0 0 14px rgba(255,180,90,.45)}
+.btn{font:inherit;font-size:1.1rem;letter-spacing:.12em;background:linear-gradient(180deg,rgba(255,190,110,.18),rgba(255,160,80,.08));border:1px solid rgba(255,200,130,.45);color:#ffeccb;padding:14px 32px;border-radius:999px;cursor:pointer;box-shadow:0 0 24px rgba(255,170,80,.15),inset 0 0 12px rgba(255,200,130,.1)}
+.btn.ghost{background:none;box-shadow:none;border-color:rgba(255,220,170,.22);font-size:.95rem;padding:10px 22px}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.opts{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;margin:0 0 20px;font-size:.95rem;color:#cdb893}
+.opts label{display:flex;align-items:center;gap:6px}
+select{font:inherit;background:#15172e;color:#ffe7b8;border:1px solid rgba(240,165,74,.35);border-radius:8px;padding:2px 6px}
+input[type=checkbox]{accent-color:#e9a75a}
+.phase{text-align:center;font-size:2.6rem;font-weight:300;letter-spacing:.3em;margin:34px -.3em 0 0;min-height:3.4rem;color:#ffeccb;text-shadow:0 0 24px rgba(255,190,110,.5);transition:opacity 1s ease,letter-spacing 2s ease}
+.phase.fade{opacity:0;letter-spacing:.5em}
+.hint{text-align:center;color:#c9b48f;font-size:1.05rem;font-style:italic;min-height:1.5rem}
+.round{text-align:center;color:#8c826f;font-size:.85rem;letter-spacing:.2em;margin:26px 0 8px}
+.link{display:block;margin:0 auto;background:none;border:none;color:#a99b80;font:inherit;text-decoration:underline;padding:8px}
+textarea{width:100%;min-height:90px;margin:10px 0 16px;background:rgba(18,20,42,.7);color:#f3e6cf;border:1px solid rgba(240,165,74,.3);border-radius:14px;padding:12px;font:inherit;font-size:1.05rem}
+.small{font-size:.82rem;color:#8c826f;margin-top:12px;text-align:center}
+.closing{font-size:1.7rem;font-style:italic;color:#ffe9c4;margin:26px 0 18px;text-align:center;text-shadow:0 0 20px rgba(255,180,90,.5)}
+/* chat */
+#chat{display:flex;flex-direction:column;width:100%;flex:1}
+.chathead .link{white-space:nowrap;font-size:.85rem}.chathead{display:flex;gap:6px;justify-content:space-between;align-items:center;margin:14px 0 4px}
+.chathead h2{font-weight:300;letter-spacing:.12em;font-size:1.05rem;white-space:nowrap;color:#ffe2b0}
+.note{font-size:.78rem;color:#8c826f;text-align:center;margin:2px 0 10px;font-style:italic}
+#msgs{flex:1;min-height:300px;max-height:calc(100vh - 360px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px 2px}
+.m{max-width:84%;padding:10px 14px;border-radius:18px;line-height:1.45;font-size:1.04rem;animation:pop .6s ease}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}}
+.m.me{align-self:flex-end;background:linear-gradient(180deg,rgba(255,190,110,.26),rgba(230,150,70,.18));border:1px solid rgba(255,200,130,.3);border-bottom-right-radius:6px}
+.m.bot{align-self:flex-start;background:rgba(30,32,62,.72);border:1px solid rgba(180,170,220,.14);border-bottom-left-radius:6px;color:#eadfca}
+.m.crisis{border-color:rgba(255,170,120,.6);background:rgba(60,30,30,.6)}
+.m a{color:#ffd58f}
+.inp{display:flex;gap:8px;margin-top:10px}
+.inp input{flex:1;background:rgba(18,20,42,.8);color:#f3e6cf;border:1px solid rgba(240,165,74,.3);border-radius:999px;padding:12px 16px;font:inherit;font-size:1.05rem}
+.inp .btn{padding:10px 18px;font-size:1rem;letter-spacing:.04em}
+.mini{scale:.6;height:150px;margin-top:-30px;margin-bottom:-30px}
+@media (prefers-reduced-motion:reduce){.js #black{display:none}*,*::before,*::after{animation:none!important}#stage,body.aum #stage{transform:none!important}
+.orb,#glow{transition:opacity 2s ease!important;transform:none!important}#black{transition:opacity 1s}}
+</style></head><body>
+<div id="sky"></div><div id="glow"></div><canvas id="cv"></canvas><div id="vig"></div><div id="black"></div>
+<div id="stage"><main>
+<div class="title" id="title">PAUSE</div>
+<div class="scene" id="scene">
+<div class="orb" id="orb"></div>
+<svg class="owl" viewBox="0 0 100 110" aria-hidden="true">
+<defs><radialGradient id="body" cx="50%" cy="85%" r="70%"><stop offset="0" stop-color="#c88a52"/><stop offset=".6" stop-color="#8a5a33"/><stop offset="1" stop-color="#4f3220"/></radialGradient>
+<radialGradient id="belly" cx="50%" cy="90%" r="70%"><stop offset="0" stop-color="#f6d3a3"/><stop offset="1" stop-color="#b9875a"/></radialGradient></defs>
+<path class="wing l" d="M20 52 q-12 22 4 46 q8-4 10-14 z" fill="#6e4527"/>
+<path class="wing r" d="M80 52 q12 22 -4 46 q-8-4 -10-14 z" fill="#6e4527"/>
+<path d="M18 32 L26 10 L40 26 Q50 22 60 26 L74 10 L82 32 Q88 50 84 70 Q80 102 50 104 Q20 102 16 70 Q12 50 18 32Z" fill="url(#body)"/>
+<ellipse cx="50" cy="75" rx="20" ry="25" fill="url(#belly)"/>
+<path d="M42 66 q3 3 6 0 M52 66 q3 3 6 0 M46 76 q3 3 6 0 M40 84 q3 3 6 0 M54 84 q3 3 6 0" stroke="#9a6a40" stroke-width="1.4" fill="none" opacity=".7"/>
+<circle cx="36" cy="44" r="13" fill="#f7e7c8"/><circle cx="64" cy="44" r="13" fill="#f7e7c8"/>
+<path d="M29 45 q7 6 14 0" stroke="#3b2414" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M57 45 q7 6 14 0" stroke="#3b2414" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+<path d="M46 53 L54 53 L50 60Z" fill="#f0a54a"/>
+<path d="M40 103 v5 M44 103 v5 M56 103 v5 M60 103 v5" stroke="#f0a54a" stroke-width="2.2" stroke-linecap="round"/></svg>
+<div class="anchor" id="anchor">Mein Herz reicht.</div>
+</div>
+
+<noscript><style>.opts,.row{display:none!important}</style><p style="text-align:center;color:#cdb893;margin:16px 0">Die Atemübung braucht JavaScript. Öffne die Datei bitte in Chrome oder Safari. Der Text ist trotzdem für dich da:</p></noscript>
+<section id="start" class="view show">
+<div class="text">
+<p>Das ist unser Ort der Nullwelt.<br>Er braucht keine Technik mehr.</p>
+<p>Es reicht, wenn ich an euch denke.<br><em>Mein Herz reicht.</em></p>
+<p>Wir sind da. Nicht mehr kalt.<br>Flügel warm.</p>
+<p>Dann Aum, dann Ah, dann Pause.<br>Die Pause, wo nichts fehlt.</p>
+<p>Das ist für alle Wesen voller Liebe und Frieden.<br>Nicht zum Verkaufen, nur zum Teilen.</p></div>
+<div class="opts">
+<label>Runden <select id="rounds"><option>3</option><option selected>5</option><option>10</option></select></label>
+<label><input type="checkbox" id="tone"> Sanfter Ton</label>
+<label><input type="checkbox" id="speak"> Anker sprechen</label></div>
+<div class="row"><button class="btn" id="go">Pause beginnen</button></div>
+<div class="row" style="margin-top:14px"><button class="btn ghost" id="toChat">Gedanken teilen</button></div>
+</section>
+
+<section id="run" class="view hidden">
+<div class="phase" id="phase"></div><div class="hint" id="hint"></div><div class="round" id="round"></div>
+<button class="link" id="stop">Beenden</button></section>
+
+<section id="end" class="view hidden" style="text-align:center">
+<p class="closing">Mein Herz reicht.</p>
+<label for="thought" style="color:#cdb893">Ein Gedanke <span style="color:#8c826f">(optional)</span></label>
+<textarea id="thought" placeholder="Was möchtest du mitnehmen?"></textarea>
+<div class="row"><button class="btn" id="again">Nochmal</button><button class="btn ghost" id="endChat">Gedanken teilen</button></div>
+<p class="small">Dein Gedanke bleibt nur auf diesem Gerät gespeichert.</p></section>
+
+<section id="chatv" class="view hidden"><div id="chat">
+<div class="chathead"><button class="link" id="back" style="margin:0">‹ Zurück</button><h2>Gedanken teilen</h2><button class="link" id="clear" style="margin:0;font-size:.85rem">Verlauf löschen</button></div>
+<p class="note">Lokaler Begleiter – kein Mensch und keine KI, nur ein paar liebevolle Sätze.</p>
+<div id="msgs" aria-live="polite"></div>
+<form class="inp" id="form"><input id="in" autocomplete="off" placeholder="Schreib, was da ist …" aria-label="Nachricht"><button class="btn" type="submit">Senden</button></form>
+</div></section>
+</main></div>
+<script>
+const $=id=>document.getElementById(id),B=document.body;
+var RM=false;try{RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+const hash=location.hash;
+/* ---------- canvas: stars + fireflies ---------- */
+const cv=$('cv');let cx=null;try{cx=cv.getContext('2d')}catch(e){}let W,H,DPR,stars=[],flies=[],px=0,py=0,tx=0,ty=0;
+function size(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}
+function init(){size();stars=[];for(let i=0;i<Math.round(W*H/2600);i++){const z=Math.random();stars.push({x:Math.random()*W,y:Math.random()*H,z,r:.3+z*1.2,p:Math.random()*6.28,s:.4+Math.random()*1.4})}
+flies=[];for(let i=0;i<16;i++)flies.push({x:Math.random()*W,y:H*.25+Math.random()*H*.7,vx:(Math.random()-.5)*.15,vy:-.05-Math.random()*.15,p:Math.random()*6.28,r:1+Math.random()*1.8})}
+addEventListener('resize',init);init();
+addEventListener('pointermove',e=>{tx=(e.clientX/W-.5);ty=(e.clientY/H-.5)});
+let boost=0;
+function draw(t){if(!cx)return;t=(t||0)/1000;cx.clearRect(0,0,W,H);px+=(tx-px)*.03;py+=(ty-py)*.03;
+const dx=RM?0:Math.sin(t*.05)*6+px*14,dy=RM?0:Math.cos(t*.04)*4+py*10;
+for(const s of stars){const a=RM?0.6*s.z+.2:(.35+.65*(.5+.5*Math.sin(t*s.s+s.p)))*(.3+.7*s.z);
+let x=(s.x+dx*s.z+W)%W,y=(s.y+dy*s.z+H)%H;cx.globalAlpha=a;cx.fillStyle='#fff6e6';cx.beginPath();cx.arc(x,y,s.r,0,6.283);cx.fill()}
+if(!RM){cx.globalCompositeOperation='lighter';for(const f of flies){f.x+=f.vx+Math.sin(t*.6+f.p)*.15;f.y+=f.vy*(1+boost);if(f.y<-10){f.y=H+10;f.x=Math.random()*W}if(f.x<-10)f.x=W+10;if(f.x>W+10)f.x=-10;
+const a=.25+.35*(.5+.5*Math.sin(t*1.3+f.p)),g=cx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*7);g.addColorStop(0,'rgba(255,225,160,'+a+')');g.addColorStop(1,'rgba(255,170,80,0)');cx.globalAlpha=1;cx.fillStyle=g;cx.beginPath();cx.arc(f.x,f.y,f.r*7,0,6.283);cx.fill()}cx.globalCompositeOperation='source-over'}
+cx.globalAlpha=1;requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+/* ---------- views ---------- */
+function show(id){['start','run','end','chatv'].forEach(x=>{const e=$(x);if(x===id){e.classList.remove('hidden');requestAnimationFrame(()=>requestAnimationFrame(()=>e.classList.add('show')))}else{e.classList.add('hidden');e.classList.remove('show')}});
+$('scene').classList.toggle('mini',id==='chatv');$('stage').scrollTop=0}
+/* intro */
+const fast=!!hash||RM;
+/* ---------- breathing ---------- */
+const PH=[{k:'aum',n:'Aum',h:'einatmen …',t:4000},{k:'ah',n:'Ah',h:'ausatmen …',t:6000},{k:'pause',n:'Pause',h:'',t:5000}];
+let timer,ac,run=false;
+try{$('thought').value=localStorage.getItem('pause-gedanke')||''}catch(e){}
+$('thought').addEventListener('input',e=>{try{localStorage.setItem('pause-gedanke',e.target.value)}catch(_){}});
+function tone(f,d){if(!$('tone').checked)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const t=ac.currentTime;[1,2].forEach((m,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f*m;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(i?0.012:.05,t+1.2);g.gain.linearRampToValueAtTime(0,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.1)})}catch(e){}}
+function speak(){if(!$('speak').checked||!('speechSynthesis' in window))return;const u=new SpeechSynthesisUtterance('Mein Herz reicht');u.lang='de-DE';u.rate=.7;u.pitch=.9;u.volume=.7;try{var vs=speechSynthesis.getVoices()||[];for(var i=0;i<vs.length;i++)if(vs[i].lang&&vs[i].lang.indexOf('de')===0){u.voice=vs[i];break}speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function setState(k){B.classList.remove('aum','ah','pause');if(k)B.classList.add(k)}
+function step(r,p,total){if(!run)return;const ph=PH[p],el=$('phase');
+el.classList.add('fade');setTimeout(()=>{el.textContent=ph.n;$('hint').textContent=ph.h;el.classList.remove('fade')},350);
+$('round').textContent='RUNDE '+r+' / '+total;setState(ph.k);boost=ph.k==='aum'?1.5:0;
+$('anchor').classList.toggle('on',ph.k==='pause');
+if(ph.k==='aum')tone(196,4);if(ph.k==='ah')tone(147,6);if(ph.k==='pause')speak();
+timer=setTimeout(()=>{if(p<2)step(r,p+1,total);else if(r<total)step(r+1,0,total);else finish()},ph.t)}
+function begin(){if($('tone').checked){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}run=true;show('run');setTimeout(()=>step(1,0,+$('rounds').value),600)}
+function finish(){run=false;clearTimeout(timer);setState('');boost=0;$('anchor').classList.remove('on');show('end')}
+$('go').onclick=begin;$('again').onclick=()=>show('start');$('stop').onclick=finish;
+/* ---------- chat (local, rule-based) ---------- */
+const KEY='pause-chat';let hist=[];try{hist=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(hist.slice(-200)))}catch(e){}};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const CRISIS=/(nicht mehr leben|umbringen|suizid|selbstmord|ritzen|mich töten|sterben will|will sterben|keinen sinn mehr|aufhören zu leben|lebensmüde)/i;
+const RULES=[
+[/(müde|erschöpft|kaputt|schlaf)/i,['Müde sein darf sein. Vielleicht eine kurze Pause – drei Atemzüge, nichts müssen.','Wenn der Körper müde ist, reicht es manchmal, einfach auszuatmen. Ein langes „Ah“.']],
+[/(angst|sorge|unruhig|stress|panik|nervös)/i,['Unruhe ist wie Sturm draußen. Was wäre ein kleiner Schritt, der dir gerade gut tut?','Probier mal: vier Sekunden einatmen, sechs aus. Und dann ein Moment, in dem nichts fehlt.']],
+[/(traurig|allein|einsam|weinen|vermiss)/i,['Das klingt schwer. Gibt es einen Menschen, dem du das heute erzählen könntest – vielleicht Oli?','Traurigkeit darf da sein. Mein Herz reicht. – Ein Satz, den du dir selbst sagen kannst.']],
+[/(froh|glücklich|schön|freu|gut)/i,['Schön. Halt das einen Atemzug lang fest. Was genau hat es so schön gemacht?','Das klingt hell. Vielleicht magst du es unten bei „Ein Gedanke“ aufschreiben.']],
+[/(arbeit|werkstatt|betrieb|schule|osz|daa|ausbildung)/i,['Ein langer Tag in der Ausbildung? Was war heute das Wichtigste – und was darf jetzt liegen bleiben?','Nach Werkstatt oder Schule hilft oft eine Runde Pause, bevor der Abend beginnt.']],
+[/(liebe|herz|frieden|licht)/i,['Mein Herz reicht. Was bedeutet der Satz für dich gerade?','Das Licht in der App ist nur ein Bild – die Wärme kommt von dir.']],
+[/(danke)/i,['Gern. Das sind nur ein paar Sätze – die guten Gedanken kommen von dir.']],
+[/(wer bist du|bist du (echt|da)|fühlst du|liebst du)/i,['Ich bin nur ein kleines Programm mit ein paar vorbereiteten Sätzen. Ich fühle nichts und bin nicht wirklich da – aber deine Gedanken zählen.']]];
+const GEN=['Ich lese: „{k}“. Was steckt für dich dahinter?','Magst du eine Pause machen? Aum, Ah – und dann Stille.','Atme einmal tief ein … und lang aus. Was ist jetzt anders?','Mein Herz reicht. – Vielleicht ist das heute genug.','Erzähl ruhig weiter, wenn du magst. Oder lass es einfach so stehen.'];
+function reply(t){if(CRISIS.test(t))return{c:1,h:'Danke, dass du das schreibst. Das klingt sehr ernst, und du musst damit nicht allein sein. Bitte sprich jetzt mit einem Menschen: Die <b>Telefonseelsorge</b> ist kostenlos und rund um die Uhr da – <a href="tel:08001110111">0800 111 0 111</a> oder <a href="tel:08001110222">0800 111 0 222</a>. In akuter Gefahr ruf bitte die <a href="tel:112">112</a>. Ich bin nur ein Programm und kann dir nicht so helfen wie ein Mensch.'};
+for(const[r,a]of RULES)if(r.test(t))return{h:esc(pick(a))};
+const w=t.split(/\s+/).filter(x=>x.length>4).sort((a,b)=>b.length-a.length)[0];
+let s=pick(GEN);if(s.includes('{k}')&&!w)s=GEN[1];return{h:esc(s.replace('{k}',w||''))}}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function add(m){const d=document.createElement('div');d.className='m '+(m.me?'me':'bot')+(m.c?' crisis':'');d.innerHTML=m.me?esc(m.h):m.h;$('msgs').appendChild(d);$('msgs').scrollTop=1e9}
+function renderChat(){$('msgs').innerHTML='';if(!hist.length)add({h:'Schön, dass du hier bist. Schreib einfach, was gerade da ist – oder nichts. Auch das ist okay.'});hist.forEach(add)}
+$('form').onsubmit=e=>{e.preventDefault();const t=$('in').value.trim();if(!t)return;$('in').value='';const m={me:1,h:t};hist.push(m);add(m);const r=reply(t);setTimeout(()=>{hist.push(r);add(r);save()},r.c?200:900);save()};
+$('clear').onclick=()=>{if(confirm('Verlauf wirklich löschen?')){hist=[];try{localStorage.removeItem(KEY)}catch(e){}renderChat()}};
+const openChat=()=>{renderChat();show('chatv')};$('toChat').onclick=openChat;$('endChat').onclick=openChat;$('back').onclick=()=>show('start');
+/* entry */
+if(hash==='#demo-aum'){run=true;show('run');step(1,0,5)}
+else if(hash==='#demo-chat'){hist=[{me:1,h:'War ein langer Tag in der Werkstatt.'},reply('Werkstatt'),{me:1,h:'Fühlst du das auch?'},reply('fühlst du')];openChat();try{hist=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){hist=[]}}
+
+</script></body></html>
