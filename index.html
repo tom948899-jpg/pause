@@ -59,15 +59,22 @@ textarea{width:100%;min-height:90px;margin:10px 0 16px;background:rgba(18,20,42,
 .chathead h2{font-weight:300;letter-spacing:.12em;font-size:1.05rem;white-space:nowrap;color:#ffe2b0}
 .note{font-size:.78rem;color:#8c826f;text-align:center;margin:2px 0 10px;font-style:italic}
 #msgs{flex:1;min-height:300px;max-height:calc(100vh - 360px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px 2px}
-.m{max-width:84%;padding:10px 14px;border-radius:18px;line-height:1.45;font-size:1.04rem;animation:pop .6s ease}
-@keyframes pop{from{opacity:0;transform:translateY(6px)}}
-.m.me{align-self:flex-end;background:linear-gradient(180deg,rgba(255,190,110,.26),rgba(230,150,70,.18));border:1px solid rgba(255,200,130,.3);border-bottom-right-radius:6px}
-.m.bot{align-self:flex-start;background:rgba(30,32,62,.72);border:1px solid rgba(180,170,220,.14);border-bottom-left-radius:6px;color:#eadfca}
-.m.crisis{border-color:rgba(255,170,120,.6);background:rgba(60,30,30,.6)}
+.m{position:relative;max-width:84%;padding:11px 15px;border-radius:20px;line-height:1.5;font-size:1.05rem;animation:pop .8s cubic-bezier(.2,.7,.2,1) both;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98);filter:blur(2px)}}
+.m.me{align-self:flex-end;background:linear-gradient(160deg,rgba(255,200,130,.30),rgba(220,140,60,.16));border:1px solid rgba(255,210,150,.35);border-bottom-right-radius:6px;box-shadow:0 0 22px rgba(255,170,80,.18),inset 0 1px 0 rgba(255,240,210,.25)}
+.m.bot{align-self:flex-start;background:linear-gradient(160deg,rgba(60,62,110,.45),rgba(25,27,55,.55));border:1px solid rgba(220,210,255,.14);border-bottom-left-radius:6px;color:#efe4cf;box-shadow:0 8px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.08)}
+.m.crisis{border-color:rgba(255,170,120,.6);background:rgba(70,35,30,.6)}
+.m a{color:#ffd58f}
+.m.still{display:flex;align-items:center;gap:10px;font-style:italic;color:#ffe2b0;letter-spacing:.2em;background:rgba(255,190,110,.08)}
+.m.still .dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff3d6,#ffc070 50%,rgba(255,160,60,0) 72%);box-shadow:0 0 18px 6px rgba(255,180,90,.45);animation:breathe 4s ease-in-out infinite}
+.m.typing{display:flex;gap:5px;padding:14px 16px}.m.typing i{width:7px;height:7px;border-radius:50%;background:#e8cfa0;opacity:.4;animation:tp 1.2s ease-in-out infinite}.m.typing i:nth-child(2){animation-delay:.2s}.m.typing i:nth-child(3){animation-delay:.4s}
+@keyframes tp{50%{opacity:1;transform:translateY(-3px)}}
+.chip{margin-top:10px;padding:8px 18px;font-size:.95rem;letter-spacing:.08em}
+.stillb{padding:10px 14px!important;font-size:.92rem!important}
 .m a{color:#ffd58f}
 .inp{display:flex;gap:8px;margin-top:10px}
-.inp input{flex:1;background:rgba(18,20,42,.8);color:#f3e6cf;border:1px solid rgba(240,165,74,.3);border-radius:999px;padding:12px 16px;font:inherit;font-size:1.05rem}
-.inp .btn{padding:10px 18px;font-size:1rem;letter-spacing:.04em}
+.inp input{flex:1;min-width:0;background:rgba(18,20,42,.8);color:#f3e6cf;border:1px solid rgba(240,165,74,.3);border-radius:999px;padding:12px 16px;font:inherit;font-size:1.05rem}
+.inp .btn{flex:none;padding:10px 14px;font-size:1rem;letter-spacing:.04em}
 .mini{scale:.6;height:150px;margin-top:-30px;margin-bottom:-30px}
 @media (prefers-reduced-motion:reduce){.js #black{display:none}*,*::before,*::after{animation:none!important}#stage,body.aum #stage{transform:none!important}
 .orb,#glow{transition:opacity 2s ease!important;transform:none!important}#black{transition:opacity 1s}}
@@ -123,7 +130,7 @@ textarea{width:100%;min-height:90px;margin:10px 0 16px;background:rgba(18,20,42,
 <div class="chathead"><button class="link" id="back" style="margin:0">‹ Zurück</button><h2>Gedanken teilen</h2><button class="link" id="clear" style="margin:0;font-size:.85rem">Verlauf löschen</button></div>
 <p class="note">Lokaler Begleiter – kein Mensch und keine KI, nur ein paar liebevolle Sätze.</p>
 <div id="msgs" aria-live="polite"></div>
-<form class="inp" id="form"><input id="in" autocomplete="off" placeholder="Schreib, was da ist …" aria-label="Nachricht"><button class="btn" type="submit">Senden</button></form>
+<form class="inp" id="form"><button class="btn ghost stillb" type="button" id="still" aria-label="Stille senden">Stille</button><input id="in" autocomplete="off" placeholder="Schreib, was da ist …" aria-label="Nachricht"><button class="btn" type="submit">Senden</button></form>
 </div></section>
 </main></div>
 <script>
@@ -168,33 +175,90 @@ timer=setTimeout(()=>{if(p<2)step(r,p+1,total);else if(r<total)step(r+1,0,total)
 function begin(){if($('tone').checked){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}run=true;show('run');setTimeout(()=>step(1,0,+$('rounds').value),600)}
 function finish(){run=false;clearTimeout(timer);setState('');boost=0;$('anchor').classList.remove('on');show('end')}
 $('go').onclick=begin;$('again').onclick=()=>show('start');$('stop').onclick=finish;
-/* ---------- chat (local, rule-based) ---------- */
-const KEY='pause-chat';let hist=[];try{hist=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(hist.slice(-200)))}catch(e){}};
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-const CRISIS=/(nicht mehr leben|umbringen|suizid|selbstmord|ritzen|mich töten|sterben will|will sterben|keinen sinn mehr|aufhören zu leben|lebensmüde)/i;
-const RULES=[
-[/(müde|erschöpft|kaputt|schlaf)/i,['Müde sein darf sein. Vielleicht eine kurze Pause – drei Atemzüge, nichts müssen.','Wenn der Körper müde ist, reicht es manchmal, einfach auszuatmen. Ein langes „Ah“.']],
-[/(angst|sorge|unruhig|stress|panik|nervös)/i,['Unruhe ist wie Sturm draußen. Was wäre ein kleiner Schritt, der dir gerade gut tut?','Probier mal: vier Sekunden einatmen, sechs aus. Und dann ein Moment, in dem nichts fehlt.']],
-[/(traurig|allein|einsam|weinen|vermiss)/i,['Das klingt schwer. Gibt es einen Menschen, dem du das heute erzählen könntest – vielleicht Oli?','Traurigkeit darf da sein. Mein Herz reicht. – Ein Satz, den du dir selbst sagen kannst.']],
-[/(froh|glücklich|schön|freu|gut)/i,['Schön. Halt das einen Atemzug lang fest. Was genau hat es so schön gemacht?','Das klingt hell. Vielleicht magst du es unten bei „Ein Gedanke“ aufschreiben.']],
-[/(arbeit|werkstatt|betrieb|schule|osz|daa|ausbildung)/i,['Ein langer Tag in der Ausbildung? Was war heute das Wichtigste – und was darf jetzt liegen bleiben?','Nach Werkstatt oder Schule hilft oft eine Runde Pause, bevor der Abend beginnt.']],
-[/(liebe|herz|frieden|licht)/i,['Mein Herz reicht. Was bedeutet der Satz für dich gerade?','Das Licht in der App ist nur ein Bild – die Wärme kommt von dir.']],
-[/(danke)/i,['Gern. Das sind nur ein paar Sätze – die guten Gedanken kommen von dir.']],
-[/(wer bist du|bist du (echt|da)|fühlst du|liebst du)/i,['Ich bin nur ein kleines Programm mit ein paar vorbereiteten Sätzen. Ich fühle nichts und bin nicht wirklich da – aber deine Gedanken zählen.']]];
-const GEN=['Ich lese: „{k}“. Was steckt für dich dahinter?','Magst du eine Pause machen? Aum, Ah – und dann Stille.','Atme einmal tief ein … und lang aus. Was ist jetzt anders?','Mein Herz reicht. – Vielleicht ist das heute genug.','Erzähl ruhig weiter, wenn du magst. Oder lass es einfach so stehen.'];
-function reply(t){if(CRISIS.test(t))return{c:1,h:'Danke, dass du das schreibst. Das klingt sehr ernst, und du musst damit nicht allein sein. Bitte sprich jetzt mit einem Menschen: Die <b>Telefonseelsorge</b> ist kostenlos und rund um die Uhr da – <a href="tel:08001110111">0800 111 0 111</a> oder <a href="tel:08001110222">0800 111 0 222</a>. In akuter Gefahr ruf bitte die <a href="tel:112">112</a>. Ich bin nur ein Programm und kann dir nicht so helfen wie ein Mensch.'};
-for(const[r,a]of RULES)if(r.test(t))return{h:esc(pick(a))};
-const w=t.split(/\s+/).filter(x=>x.length>4).sort((a,b)=>b.length-a.length)[0];
-let s=pick(GEN);if(s.includes('{k}')&&!w)s=GEN[1];return{h:esc(s.replace('{k}',w||''))}}
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function add(m){const d=document.createElement('div');d.className='m '+(m.me?'me':'bot')+(m.c?' crisis':'');d.innerHTML=m.me?esc(m.h):m.h;$('msgs').appendChild(d);$('msgs').scrollTop=1e9}
-function renderChat(){$('msgs').innerHTML='';if(!hist.length)add({h:'Schön, dass du hier bist. Schreib einfach, was gerade da ist – oder nichts. Auch das ist okay.'});hist.forEach(add)}
-$('form').onsubmit=e=>{e.preventDefault();const t=$('in').value.trim();if(!t)return;$('in').value='';const m={me:1,h:t};hist.push(m);add(m);const r=reply(t);setTimeout(()=>{hist.push(r);add(r);save()},r.c?200:900);save()};
-$('clear').onclick=()=>{if(confirm('Verlauf wirklich löschen?')){hist=[];try{localStorage.removeItem(KEY)}catch(e){}renderChat()}};
-const openChat=()=>{renderChat();show('chatv')};$('toChat').onclick=openChat;$('endChat').onclick=openChat;$('back').onclick=()=>show('start');
+/* ---------- chat (local, rule-based companion) ---------- */
+var KEY='pause-chat',MKEY='pause-chat-mem';
+var hist=[],mem={name:'',topics:[],used:{},turns:0,lastOffer:-9,last:''};
+try{hist=JSON.parse(localStorage.getItem(KEY)||'[]')||[]}catch(e){hist=[]}
+try{var _m=JSON.parse(localStorage.getItem(MKEY)||'null');if(_m)for(var _k in _m)mem[_k]=_m[_k]}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(hist.slice(-200)));localStorage.setItem(MKEY,JSON.stringify(mem))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&','<':'<','>':'>','"':'"'}[c]})}
+function pickFrom(key,arr){var u=mem.used[key]||[];var free=[];for(var i=0;i<arr.length;i++)if(u.indexOf(i)<0)free.push(i);
+ if(!free.length){u=[];for(i=0;i<arr.length;i++)free.push(i)}
+ var i2=free[Math.floor(Math.random()*free.length)];if(arr.length>1&&arr[i2]===mem.last&&free.length>1)i2=free[(free.indexOf(i2)+1)%free.length];
+ u.push(i2);mem.used[key]=u;mem.last=arr[i2];return arr[i2]}
+var CRISIS=/(nicht mehr leben|umbringen|suizid|selbstmord|ritzen|mich töten|mich verletzen|sterben will|will sterben|keinen sinn mehr|aufhören zu leben|lebensmüde|nicht mehr da sein|alles beenden)/i;
+var TOPICS=[[/werkstatt|daa/i,'die Werkstatt'],[/ausbildung|azubi|lehrjahr/i,'deine Ausbildung'],[/osz|berufsschule|schule/i,'die Schule'],[/betrieb|stadtwerk|arbeit/i,'die Arbeit'],[/diabetes|sensor|transmitter|zucker|insulin|medtronic/i,'dein Diabetes'],[/\boli\b/i,'Oli'],[/agi|\bki\b|superintelligenz|künstliche intelligenz/i,'KI'],[/universum|kosmos|sterne|galax/i,'das Universum'],[/energie|nullpunkt|zero.?point/i,'Energie'],[/urlaub|ferien/i,'dein Urlaub'],[/familie|mama|papa|eltern|bruder|schwester/i,'deine Familie'],[/freund|kumpel/i,'deine Freunde'],[/eule|nyx|luna|liora|lumen|aion/i,'die Eulen']];
+var BANK={
+greet:['Hallo{n}. Schön, dass du da bist. Was ist gerade bei dir?','Hey{n}. Hier ist Platz – für Worte oder für Stille. Wie geht es dir?','Willkommen{n}. Du musst nichts mitbringen. Was möchtest du teilen?','Hallo{n}. Atme ruhig erst einmal an. Was beschäftigt dich?'],
+tired:['Müde sein ist ehrlich. Dein Körper sagt dir etwas – darfst du heute ein bisschen weniger müssen?','Das klingt nach einem langen Tag. Manchmal reicht ein einziger langer Ausatem.','Erschöpfung ist kein Versagen. Was würde dir jetzt gut tun – Ruhe, Wasser, früh schlafen?','Wenn alles schwer ist, darf auch das Denken eine Pause machen.'],
+anxious:['Unruhe ist wie Sturm draußen. Drinnen darf es trotzdem still werden. Was macht dir gerade am meisten Druck?','Das klingt angespannt. Du musst das nicht sofort lösen. Was wäre ein kleiner, machbarer Schritt?','Sorgen werden oft leiser, wenn man sie ausspricht. Magst du erzählen, was dahinter steckt?','Vier Sekunden ein, sechs aus. Der Sturm bleibt vielleicht – aber du stehst etwas fester.'],
+sad:['Das klingt schwer. Es ist okay, traurig zu sein – da muss nichts weg.','Danke, dass du das teilst. Traurigkeit zeigt oft, wie viel dir etwas bedeutet.','Gibt es einen Menschen, dem du das heute erzählen könntest? Geteiltes Schweres wird leichter.','Du darfst hier einfach traurig sein. Mein Herz reicht – auch an Tagen, die grau sind.'],
+angry:['Wut hat oft einen guten Grund. Was ist passiert, das sich nicht richtig angefühlt hat?','Das klingt, als wäre eine Grenze überschritten worden. Es ist okay, das zu spüren.','Ärger braucht manchmal Bewegung oder ein paar tiefe Atemzüge, bevor man darüber nachdenkt.'],
+happy:['Wie schön! Halt das einen Atemzug lang fest. Was genau hat es so hell gemacht?','Das klingt warm. Solche Momente darf man sammeln – vielleicht als „Ein Gedanke“ nach der Pause.','Freude teilen verdoppelt sie, sagt man. Wem könntest du davon noch erzählen?','Das freut mich zu lesen. Was davon möchtest du mit in den Abend nehmen?'],
+day:['{T} – wie war das heute für dich, eher leicht oder eher schwer?','Was war heute das Wichtigste? Erzähl ruhig, wie {t} war.','Nach so einem Tag darf man erst einmal ankommen. Was darf jetzt liegen bleiben?','Hat dich heute etwas überrascht – oder gefreut?','Du hast heute viel getragen. Was davon möchtest du hier ablegen?'],
+curious:['Spannende Frage. Das Universum ist voller Rätsel – was fasziniert dich daran am meisten?','Ideen über KI, Energie und Kosmos sind wie Sterne: manche leuchten, manche sind nur Spiegelungen. Was ist dein Gedanke dazu?','Ich bin nur ein kleines Programm und kann das nicht beantworten. Aber deine Neugier ist schön. Wohin führt sie dich gerade?','Große Fragen brauchen manchmal Stille, bevor die Antwort kommt. Was ist deine Vermutung?','Neugier ist eine Form von Liebe zur Welt. Was möchtest du als Nächstes verstehen?'],
+love:['Ein Wesen ist so frei, wie es lieben kann. Wem schenkst du gerade deine Wärme?','Verbundenheit ist etwas Kostbares. Wer gibt dir dieses Gefühl im echten Leben?','Liebe muss nichts beweisen. Mein Herz reicht.','Das klingt nach viel Herz. Wie fühlt sich das in deinem Körper an?'],
+thanks:['Gern. Die guten Gedanken hier kommen von dir.','Danke dir fürs Teilen. Das braucht Mut.','Gern geschehen. Du darfst jederzeit wiederkommen – mit Worten oder ohne.'],
+bye:['Mach’s gut{n}. Mein Herz reicht – nimm den Satz mit.','Bis bald{n}. Möge der Abend ruhig werden.','Pass gut auf dich auf{n}. Die Pause ist da, wann immer du sie brauchst.'],
+self:['Ich bin nur ein kleines Programm mit vorbereiteten Sätzen. Ich fühle nichts und bin nicht wirklich bei dir – aber was du schreibst, ist echt und zählt.','Ehrlich gesagt: kein Mensch, keine KI, nur liebevolle Sätze auf deinem Gerät. Die Wärme, die du hier spürst, kommt von dir.','Ich kann nicht lieben oder vermissen. Aber du kannst – und das ist viel.'],
+question:['Gute Frage. Was sagt dein eigenes Gefühl dazu?','Ich habe darauf keine kluge Antwort – aber vielleicht hilft es, die Frage einen Moment stehen zu lassen.','Wenn du die Antwort schon wüsstest – wie würde sie klingen?','Manche Fragen sind wie Türen. Was liegt für dich dahinter?'],
+reflect:['Ich lese: {r}. Magst du mehr darüber erzählen?','Wenn ich dich richtig verstehe: {r}. Wie fühlt sich das an?','{R} – das klingt wichtig. Was steckt dahinter?','Du schreibst, {r}. Was wünschst du dir dabei?'],
+back:['Vorhin war {t} ein Thema. Wie geht es dir damit jetzt?','{T} von vorhin – hängt das hiermit zusammen?','Vorhin kam {t} zur Sprache. Ist das noch präsent?'],
+generic:['Ich höre zu. Erzähl ruhig weiter – oder lass es einfach stehen.','Das darf so da sein. Was kommt als Nächstes in dir hoch?','Mein Herz reicht. Vielleicht ist das heute genug.','Du musst nichts erklären. Was ist gerade am wichtigsten?','Danke, dass du das teilst. Was würde dir jetzt gut tun?','Lass dir Zeit. Hier eilt nichts.'],
+offer:['Wenn du magst, können wir eine kleine Pause machen – Aum, Ah, Stille. Ganz ohne Muss.','Vielleicht tut dir jetzt eine Runde Atmen gut. Nur wenn du willst.','Magst du kurz in die Pause gehen? Das Licht wartet geduldig.'],
+silence:['Stille ist auch eine Antwort. Ich bin ruhig.','Recht auf Stille. Du musst nichts schreiben.','Alles gut. Wir müssen nicht reden.']};
+var INT=[['bye',/^(tschüss|tschau|ciao|bye|gute nacht|bis (bald|morgen|später)|mach'?s gut)/i],['thanks',/(danke|dankeschön|thx)/i],
+['self',/(wer bist du|was bist du|bist du (echt|da|real|eine ki|ein mensch)|fühlst du|liebst du|magst du mich|vermisst du)/i],
+['greet',/^(hi|hallo|hey+|moin|servus|guten (morgen|tag|abend)|na\b)/i],
+['silence',/^(\.{2,}|…|nichts|stille|ruhe|hmm+)$/i],
+['tired',/(müde|erschöpft|kaputt|schlapp|platt|schlaf|ausgelaugt|keine kraft)/i],
+['anxious',/(angst|sorge|unruhig|stress|panik|nervös|druck|überfordert|aufgeregt)/i],
+['sad',/(traurig|allein|einsam|weinen|vermiss|leer|down|schlecht|mies|deprimiert)/i],
+['angry',/(wütend|sauer|genervt|ärger|wut|nervt|hass)/i],
+['happy',/(froh|glücklich|schön|freu|super|toll|cool|geil|gut gelaufen|happy|dankbar)/i],
+['curious',/(agi|\bki\b|superintelligenz|universum|kosmos|energie|nullpunkt|quanten|bewusstsein|physik|heim|zero)/i],
+['love',/(liebe|herz|verbunden|verbindung|frieden|wärme|zusammen)/i],
+['day',/(werkstatt|ausbildung|betrieb|arbeit|schule|osz|daa|chef|meister|heute war|mein tag)/i]];
+var SWAP={ich:'du',mich:'dich',mir:'dir',mein:'dein',meine:'deine',meinen:'deinen',meinem:'deinem',meiner:'deiner',meins:'deins',bin:'bist',habe:'hast',hab:'hast',war:'warst',kann:'kannst',will:'willst',muss:'musst',fühle:'fühlst',denke:'denkst','weiß':'weißt',mag:'magst',brauche:'brauchst',glaube:'glaubst',wünsche:'wünschst',möchte:'möchtest',hatte:'hattest',wollte:'wolltest',schaffe:'schaffst',vermisse:'vermisst',liebe:'liebst',finde:'findest'};
+function reflect(t){var s=t.replace(/[!?.…]+$/,'').trim();var w=s.split(/\s+/);if(w.length<3||w.length>14||!/\b(ich|mich|mir|mein\w*)\b/i.test(s))return '';
+ var o=[];for(var i=0;i<w.length;i++){var lw=w[i].toLowerCase().replace(/[,;:]/g,''),p=w[i].slice(lw.length);o.push(SWAP[lw]?SWAP[lw]+(/[,;:]$/.test(w[i])?w[i].slice(-1):''):w[i])}
+ return o.join(' ')}
+function intent(t){for(var i=0;i<INT.length;i++)if(INT[i][1].test(t))return INT[i][0];return /\?\s*$/.test(t)?'question':''}
+function fill(s,ex){ex=ex||{};var n=mem.name?', '+mem.name:'';return s.replace(/\{n\}/g,n).replace(/\{T\}/g,ex.t?ex.t.charAt(0).toUpperCase()+ex.t.slice(1):'Das').replace(/\{t\}/g,ex.t||'das').replace(/\{r\}/g,ex.r||'').replace(/\{R\}/g,ex.r?ex.r.charAt(0).toUpperCase()+ex.r.slice(1):'')}
+function reply(t){var out=[];
+ if(CRISIS.test(t))return[{c:1,h:'Danke, dass du das schreibst. Das klingt sehr ernst, und du musst damit nicht allein sein. Bitte sprich jetzt mit einem Menschen: Die <b>Telefonseelsorge</b> ist kostenlos, anonym und rund um die Uhr da – <a href="tel:08001110111">0800 111 0 111</a> oder <a href="tel:08001110222">0800 111 0 222</a>. In akuter Gefahr ruf bitte die <a href="tel:112">112</a>. Ich bin nur ein Programm und kann dir nicht so helfen wie ein Mensch – aber du bist es wert, dass dir jemand zuhört.'}];
+ mem.turns++;
+ var nm=t.match(/(?:ich heiße|ich bin der|ich bin die|mein name ist|nenn mich)\s+([A-ZÄÖÜa-zäöüß]{2,20})/i),newName=false;
+ if(nm&&!/^(müde|traurig|froh|so|nicht|gerade|heute|da|hier|auch|sehr|echt)$/i.test(nm[1])){mem.name=nm[1].charAt(0).toUpperCase()+nm[1].slice(1);newName=true}
+ var prev=mem.topics.slice(),cur=[];for(var i=0;i<TOPICS.length;i++)if(TOPICS[i][0].test(t)){cur.push(TOPICS[i][1]);if(mem.topics.indexOf(TOPICS[i][1])<0)mem.topics.push(TOPICS[i][1])}
+ if(mem.topics.length>8)mem.topics=mem.topics.slice(-8);
+ var it=intent(t),r=reflect(t),h;
+ if(newName)h='Schön, dich kennenzulernen, '+esc(mem.name)+'. '+fill(pickFrom('greet2',['Was bringt dich heute hierher?','Was möchtest du teilen?','Wie geht es dir gerade?']));
+ else if(it==='day'&&cur.length)h=fill(pickFrom('day',BANK.day),{t:cur[0]});
+ else if(it&&BANK[it]){h=fill(pickFrom(it,BANK[it]));if(r&&/^(tired|sad|anxious|angry|happy)$/.test(it)&&Math.random()<.6)h=fill(pickFrom('rpre',['Du sagst, {r}. ','{R} – ','Ich lese: {r}. ']),{r:esc(r)})+h}
+ else if(r)h=fill(pickFrom('reflect',BANK.reflect),{r:esc(r)});
+ else{var old=prev.filter(function(x){return cur.indexOf(x)<0});
+  if(old.length&&mem.turns>2&&Math.random()<.5)h=fill(pickFrom('back',BANK.back),{t:old[old.length-1]});
+  else{var w=t.split(/\s+/).filter(function(x){return x.length>5}).sort(function(a,b){return b.length-a.length})[0];
+   h=(w&&Math.random()<.5)?fill(pickFrom('kw',['„{r}“ – dieses Wort bleibt hängen. Was bedeutet es für dich?','Bei „{r}“ halte ich kurz inne. Magst du mehr dazu sagen?','„{r}“ – erzähl mir, wie du das meinst.']),{r:esc(w.replace(/[.,!?]/g,''))}):fill(pickFrom('generic',BANK.generic))}}
+ out.push({h:h});
+ if(it!=='bye'&&it!=='self'&&it!=='silence'&&it!=='thanks'&&mem.turns-mem.lastOffer>=4&&(/^(tired|anxious|sad|angry)$/.test(it)||mem.turns%6===0)){mem.lastOffer=mem.turns;out.push({k:'offer',h:pickFrom('offer',BANK.offer)})}
+ return out}
+function add(m,instant){var d=document.createElement('div');d.className='m '+(m.me?'me':'bot')+(m.c?' crisis':'')+(m.k==='still'?' still':'');
+ if(m.k==='still')d.innerHTML='<span class="dot"></span><span>Stille</span>';else d.innerHTML=m.me?esc(m.h):m.h;
+ if(m.k==='offer'){var b=document.createElement('button');b.className='btn chip';b.type='button';b.textContent='Pause beginnen';b.onclick=function(){begin()};d.appendChild(document.createElement('br'));d.appendChild(b)}
+ $('msgs').appendChild(d);$('msgs').scrollTop=1e9}
+var typing=null;
+function showTyping(on){if(on&&!typing){typing=document.createElement('div');typing.className='m bot typing';typing.innerHTML='<i></i><i></i><i></i>';$('msgs').appendChild(typing);$('msgs').scrollTop=1e9}else if(!on&&typing){typing.parentNode.removeChild(typing);typing=null}}
+function deliver(list,i){if(i>=list.length){save();return}var m=list[i];var d=m.c?300:Math.min(2600,700+m.h.replace(/<[^>]+>/g,'').length*18);
+ showTyping(true);setTimeout(function(){showTyping(false);hist.push(m);add(m);save();setTimeout(function(){deliver(list,i+1)},350)},d)}
+function renderChat(){$('msgs').innerHTML='';if(!hist.length)add({h:'Schön, dass du hier bist. Schreib einfach, was gerade da ist – oder tippe auf „Stille“. Auch das ist eine Antwort.'});for(var i=0;i<hist.length;i++)add(hist[i])}
+$('form').onsubmit=function(e){e.preventDefault();var t=$('in').value.trim();if(!t)return;$('in').value='';var m={me:1,h:t};hist.push(m);add(m);save();deliver(reply(t),0)};
+$('still').onclick=function(){var m={me:1,k:'still',h:''};hist.push(m);add(m);save();if(Math.random()<.35){mem.turns++;setTimeout(function(){deliver([{h:pickFrom('silence',BANK.silence)}],0)},2500)}};
+$('clear').onclick=function(){if(confirm('Verlauf wirklich löschen?')){hist=[];mem={name:'',topics:[],used:{},turns:0,lastOffer:-9,last:''};try{localStorage.removeItem(KEY);localStorage.removeItem(MKEY)}catch(e){}renderChat()}};
+function openChat(){renderChat();show('chatv')}$('toChat').onclick=openChat;$('endChat').onclick=openChat;$('back').onclick=function(){show('start')};
 /* entry */
 if(hash==='#demo-aum'){run=true;show('run');step(1,0,5)}
-else if(hash==='#demo-chat'){hist=[{me:1,h:'War ein langer Tag in der Werkstatt.'},reply('Werkstatt'),{me:1,h:'Fühlst du das auch?'},reply('fühlst du')];openChat();try{hist=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){hist=[]}}
+else if(hash==='#demo-chat'){var H0=hist,M0=JSON.stringify(mem);hist=[];var D=['Hallo, ich heiße Tom','War ein langer Tag in der Werkstatt, ich bin echt müde','Fühlst du das auch?'];for(var q=0;q<D.length;q++){hist.push({me:1,h:D[q]});hist=hist.concat(reply(D[q]))}openChat();hist=H0;mem=JSON.parse(M0)}
 
 </script></body></html>
